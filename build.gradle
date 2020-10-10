@@ -1,0 +1,61 @@
+buildscript {
+	ext {
+		springBootVersion = '2.3.4.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+		maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+		maven { url 'https://jitpack.io' }
+	}
+}
+
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'groovy'
+	apply plugin: 'io.spring.dependency-management'
+
+	group = 'com.moebius'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = '11'
+
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
+	}
+
+	dependencies {
+		implementation 'io.projectreactor:reactor-core'
+		implementation 'org.springframework.kafka:spring-kafka'
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+		testImplementation('org.springframework.boot:spring-boot-starter-test') {
+			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		}
+		implementation "org.codehaus.groovy:groovy:2.5.13"
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework.kafka:spring-kafka-test'
+		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation('org.spockframework.spock:spock-core:spock-1.3')
+		testImplementation('org.spockframework.spock:spock-spring:spock-1.3')
+	}
+
+	test {
+		useJUnitPlatform()
+	}
+}
+
+
+
+

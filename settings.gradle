@@ -1,0 +1,4 @@
+rootProject.name = 'hashmain-message'
+include 'message'
+include 'consumer'
+
