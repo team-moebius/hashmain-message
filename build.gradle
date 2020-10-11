@@ -15,6 +15,8 @@ allprojects {
 		mavenCentral()
 		maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
 		maven { url 'https://jitpack.io' }
+		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+		jcenter()
 	}
 }
 
@@ -24,9 +26,10 @@ subprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'groovy'
 	apply plugin: 'io.spring.dependency-management'
+	apply plugin: 'org.springframework.boot'
 
-	group = 'com.moebius'
-	version = '0.0.1-SNAPSHOT'
+	project.group = 'com.moebius'
+	project.version = '0.0.1-SNAPSHOT'
 	sourceCompatibility = '11'
 
 	configurations {
@@ -36,10 +39,11 @@ subprojects {
 	}
 
 	dependencies {
+		implementation platform('io.projectreactor:reactor-bom:Bismuth-RELEASE')
 		implementation 'io.projectreactor:reactor-core'
 		implementation 'org.springframework.kafka:spring-kafka'
-		compileOnly 'org.projectlombok:lombok'
-		annotationProcessor 'org.projectlombok:lombok'
+		compileOnly('org.projectlombok:lombok')
+		annotationProcessor('org.projectlombok:lombok')
 		testImplementation('org.springframework.boot:spring-boot-starter-test') {
 			exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 		}
