@@ -1,4 +1,4 @@
-package com.moebius.message.entity;
+package com.moebius.message.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

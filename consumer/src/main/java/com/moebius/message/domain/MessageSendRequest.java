@@ -1,4 +1,4 @@
-package com.moebius.message.entity;
+package com.moebius.message.domain;
 
 import com.moebius.message.dedup.DedupStrategy;
 import lombok.AllArgsConstructor;

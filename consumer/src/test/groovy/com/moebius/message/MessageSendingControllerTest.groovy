@@ -2,10 +2,10 @@ package com.moebius.message
 
 import com.moebius.message.buffer.MessageSendingBuffer
 import com.moebius.message.dedup.DedupStrategy
-import com.moebius.message.entity.MessageBody
-import com.moebius.message.entity.MessageSendRequest
-import com.moebius.message.entity.Recipient
-import com.moebius.message.entity.RecipientType
+import com.moebius.message.domain.MessageBody
+import com.moebius.message.domain.MessageSendRequest
+import com.moebius.message.domain.Recipient
+import com.moebius.message.domain.RecipientType
 import com.moebius.message.keygen.MessageKeyGenerator
 import com.moebius.message.sender.MessageSender
 import com.moebius.message.sender.MessageSenderResolver

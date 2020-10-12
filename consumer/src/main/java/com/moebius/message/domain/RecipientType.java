@@ -1,4 +1,4 @@
-package com.moebius.message.entity;
+package com.moebius.message.domain;
 
 public enum RecipientType {
     SLACK,

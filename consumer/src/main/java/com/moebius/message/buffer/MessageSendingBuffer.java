@@ -1,6 +1,6 @@
 package com.moebius.message.buffer;
 
-import com.moebius.message.entity.MessageSendRequest;
+import com.moebius.message.domain.MessageSendRequest;
 import reactor.core.publisher.Mono;
 
 public interface MessageSendingBuffer {
