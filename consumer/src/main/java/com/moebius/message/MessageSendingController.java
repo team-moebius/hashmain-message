@@ -1,7 +1,7 @@
 package com.moebius.message;
 
 import com.moebius.message.buffer.MessageSendingBuffer;
-import com.moebius.message.dedup.DedupStrategy;
+import com.moebius.message.domain.DedupStrategy;
 import com.moebius.message.domain.MessageSendRequest;
 import com.moebius.message.domain.MessageSendingResult;
 import com.moebius.message.keygen.MessageKeyGenerator;

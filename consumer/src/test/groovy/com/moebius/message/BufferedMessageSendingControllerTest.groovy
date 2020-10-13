@@ -1,7 +1,6 @@
 package com.moebius.message
 
 import com.moebius.message.buffer.MessageSendingBuffer
-import com.moebius.message.dedup.DedupStrategy
 import com.moebius.message.domain.*
 import com.moebius.message.sender.MessageSender
 import com.moebius.message.sender.MessageSenderResolver
