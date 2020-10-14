@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
-    private static final Map<String, BufferedMessages> bufferedMessages = new HashMap<>();
+    private static final Map<String, BufferedMessages> bufferedMessages = new Hashtable<>();
     @Override
     public Mono<Boolean> hasDuplicatedMessageWith(String messageKey) {
         return Mono.just(bufferedMessages.containsKey(messageKey));
