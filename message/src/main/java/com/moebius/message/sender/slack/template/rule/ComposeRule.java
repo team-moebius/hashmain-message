@@ -1,4 +1,4 @@
-package com.moebius.message.sender.slack.template;
+package com.moebius.message.sender.slack.template.rule;
 
 import java.util.Map;
 

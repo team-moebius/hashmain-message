@@ -1,4 +1,4 @@
-package com.moebius.message.sender.slack.template;
+package com.moebius.message.sender.slack.template.domain;
 
 import lombok.Builder;
 import lombok.Getter;

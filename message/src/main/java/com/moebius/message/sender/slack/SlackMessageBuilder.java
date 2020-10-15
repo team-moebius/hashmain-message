@@ -6,6 +6,10 @@ import com.moebius.message.sender.slack.dto.Field;
 import com.moebius.message.sender.slack.dto.SlackAttachment;
 import com.moebius.message.sender.slack.dto.SlackMessageDto;
 import com.moebius.message.sender.slack.template.*;
+import com.moebius.message.sender.slack.template.domain.SlackAttachmentTemplate;
+import com.moebius.message.sender.slack.template.domain.SlackFieldTemplate;
+import com.moebius.message.sender.slack.template.domain.SlackMessageTemplate;
+import com.moebius.message.sender.slack.template.rule.ComposeRule;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

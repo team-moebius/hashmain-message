@@ -2,6 +2,12 @@ package com.moebius.message.sender.slack
 
 import com.moebius.message.domain.*
 import com.moebius.message.sender.slack.template.*
+import com.moebius.message.sender.slack.template.domain.SlackAttachmentTemplate
+import com.moebius.message.sender.slack.template.domain.SlackFieldTemplate
+import com.moebius.message.sender.slack.template.domain.SlackMessageTemplate
+import com.moebius.message.sender.slack.template.rule.StaticTextRule
+import com.moebius.message.sender.slack.template.rule.TextFormatRule
+import com.moebius.message.sender.slack.template.rule.TextRefRule
 import spock.lang.Specification
 
 class SlackMessageBuilderTest extends Specification {
