@@ -1,17 +1,7 @@
 package com.moebius.message.sender.slack
 
-import com.moebius.message.domain.DedupStrategy
-import com.moebius.message.domain.MessageBody
-import com.moebius.message.domain.MessageSendRequest
-import com.moebius.message.domain.Recipient
-import com.moebius.message.domain.RecipientType
-import com.moebius.message.sender.slack.template.SlackAttachmentTemplate
-import com.moebius.message.sender.slack.template.SlackFieldTemplate
-import com.moebius.message.sender.slack.template.SlackMessageTemplate
-import com.moebius.message.sender.slack.template.SlackMessageTemplateResolver
-import com.moebius.message.sender.slack.template.StaticTextRule
-import com.moebius.message.sender.slack.template.TextFormatRule
-import com.moebius.message.sender.slack.template.TextRefRule
+import com.moebius.message.domain.*
+import com.moebius.message.sender.slack.template.*
 import spock.lang.Specification
 
 class SlackMessageBuilderTest extends Specification {
