@@ -5,11 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.List;
-
 @Getter
 @Builder
 @ToString
-public class SlackMessageDto {
-    private final List<SlackAttachment> attachments;
+public class Field {
+    private final String title;
+    private final String value;
+    @JsonProperty("short")
+    private final boolean isShort;
 }
