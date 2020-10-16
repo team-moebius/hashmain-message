@@ -32,7 +32,10 @@ class MessageSendingControllerTest extends Specification {
         given:
         def recipient = new Recipient(RecipientType.SLACK, "test-id")
         def messageSendRequest = MessageSendRequest.builder()
-                .dedupStrategy(dedupStrategy)
+                .dedupParameters(DedupParameters.builder()
+                        .dedupStrategy(dedupStrategy)
+                        .dedupPeriodMinutes(1)
+                        .build())
                 .title("test title")
                 .body(Mock(MessageBody))
                 .recipient(recipient)

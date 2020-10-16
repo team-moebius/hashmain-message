@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MessageSendRequest {
-    private final DedupStrategy dedupStrategy;
+    private final DedupParameters dedupParameters;
     private final String title;
     private final MessageBody body;
     private final Recipient recipient;

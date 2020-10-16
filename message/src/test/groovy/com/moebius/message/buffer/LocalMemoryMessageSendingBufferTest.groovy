@@ -1,5 +1,6 @@
 package com.moebius.message.buffer
 
+import com.moebius.message.domain.DedupParameters
 import com.moebius.message.domain.DedupStrategy
 import com.moebius.message.domain.MessageBody
 import com.moebius.message.domain.MessageSendRequest
@@ -26,7 +27,7 @@ class LocalMemoryMessageSendingBufferTest extends Specification {
         })
         def messageKey = "testMessageKey"
         def messageSendRequest = new MessageSendRequest(
-                DedupStrategy.LEAVE_FIRST_ARRIVAL, "testTitle", Mock(MessageBody), Mock(Recipient)
+                new DedupParameters(DedupStrategy.LEAVE_FIRST_ARRIVAL, 1), "testTitle", Mock(MessageBody), Mock(Recipient)
         )
 
         expect:
@@ -45,7 +46,7 @@ class LocalMemoryMessageSendingBufferTest extends Specification {
         given:
         def messageKey = ""
         def messageSendRequest = new MessageSendRequest(
-                DedupStrategy.LEAVE_FIRST_ARRIVAL, "testTitle", Mock(MessageBody), Mock(Recipient)
+                new DedupParameters(DedupStrategy.LEAVE_FIRST_ARRIVAL, 1), "testTitle", Mock(MessageBody), Mock(Recipient)
         )
 
         expect:
@@ -125,7 +126,9 @@ class LocalMemoryMessageSendingBufferTest extends Specification {
 
     MessageSendRequest mockMessageSendRequest() {
         def mockRequest = Mock(MessageSendRequest)
-        mockRequest.getDedupStrategy() >> DedupStrategy.LEAVE_FIRST_ARRIVAL
+        def mockDedupParam = Mock(DedupParameters)
+        mockDedupParam.getDedupStrategy() >> DedupStrategy.LEAVE_FIRST_ARRIVAL
+        mockRequest.getDedupParameters() >> mockDedupParam
         return mockRequest
     }
 }

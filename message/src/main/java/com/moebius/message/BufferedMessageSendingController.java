@@ -22,15 +22,20 @@ public class BufferedMessageSendingController {
     private final MessageSendingBuffer messageSendingBuffer;
     private final MessageSenderResolver messageSenderResolver;
 
-    public Flux<MessageSendingResult> sendBufferedMessagesBefore(LocalDateTime deadlineToSendMessage) {
+    public Flux<MessageSendingResult> sendBufferedMessagesBefore(LocalDateTime requestedTime) {
         return messageSendingBuffer.getAllBufferedMessages()
-                .filter(bufferedMessage -> bufferedMessage.getFirstReceivedTime().isBefore(deadlineToSendMessage))
+                .filter(bufferedMessage -> shouldPickMessageFromBuffer(requestedTime, bufferedMessage))
                 .flatMap(bufferedMessages -> pickMessageSendingRequest(bufferedMessages)
                         .map(messageSendRequest -> sendMessageAndDropFromBuffer(
                                 messageSendRequest, bufferedMessages.getMessageKey()
                         ))
                         .orElseGet(() -> dropMessagesFromBufferOnly(bufferedMessages))
                 );
+    }
+
+    private boolean shouldPickMessageFromBuffer(LocalDateTime requestedTime, BufferedMessages bufferedMessage) {
+        LocalDateTime deadLineToSend = bufferedMessage.getFirstReceivedTime().plusMinutes(bufferedMessage.getDedupPeriod());
+        return deadLineToSend.isAfter(requestedTime);
     }
 
     private Optional<MessageSendRequest> pickMessageSendingRequest(BufferedMessages bufferedMessages) {

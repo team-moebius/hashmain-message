@@ -1,6 +1,7 @@
 package com.moebius.message;
 
 import com.moebius.message.buffer.MessageSendingBuffer;
+import com.moebius.message.domain.DedupParameters;
 import com.moebius.message.domain.DedupStrategy;
 import com.moebius.message.domain.MessageSendRequest;
 import com.moebius.message.domain.MessageSendingResult;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class MessageSendingController {
@@ -21,7 +24,7 @@ public class MessageSendingController {
 
     public Mono<MessageSendingResult> receiveMessageSendRequest(MessageSendRequest messageSendRequest) {
         String messageKey = messageKeyGenerator.generateMessageKey(messageSendRequest);
-        return Mono.just(messageSendRequest.getDedupStrategy())
+        return Mono.just(getDedupStrategyFromRequest(messageSendRequest))
                 .flatMap(dedupStrategy -> Mono.zip(
                         shouldSendMessage(messageKey, dedupStrategy), shouldPutBuffer(dedupStrategy)
                         )
@@ -30,6 +33,12 @@ public class MessageSendingController {
                 .filter(Tuple2::getT1)
                 .flatMap(conditionPair->sendMessage(messageSendRequest, conditionPair.getT2()))
                 .switchIfEmpty(createResultOnly());
+    }
+
+    private DedupStrategy getDedupStrategyFromRequest(MessageSendRequest request){
+        return Optional.ofNullable(request.getDedupParameters())
+                .map(DedupParameters::getDedupStrategy)
+                .orElse(DedupStrategy.NO_DEDUP);
     }
 
     private Mono<Boolean> shouldSendMessage(String messageKey, DedupStrategy dedupStrategy) {

@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 public class BufferedMessages {
     private final DedupStrategy dedupStrategy;
+    private final long dedupPeriod;
     private final LocalDateTime firstReceivedTime;
     private final List<MessageSendRequest> messageSendRequests;
     private final String messageKey;

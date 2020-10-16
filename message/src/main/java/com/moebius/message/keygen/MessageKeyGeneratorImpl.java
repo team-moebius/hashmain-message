@@ -1,9 +1,6 @@
 package com.moebius.message.keygen;
 
-import com.moebius.message.domain.DedupStrategy;
-import com.moebius.message.domain.MessageSendRequest;
-import com.moebius.message.domain.Recipient;
-import com.moebius.message.domain.RecipientType;
+import com.moebius.message.domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +13,7 @@ public class MessageKeyGeneratorImpl implements MessageKeyGenerator {
     @Override
     public String generateMessageKey(MessageSendRequest messageSendRequest) {
         validateRequest(messageSendRequest);
-        DedupStrategy dedupStrategy = messageSendRequest.getDedupStrategy();
+        DedupStrategy dedupStrategy = messageSendRequest.getDedupParameters().getDedupStrategy();
         RecipientType recipientType = messageSendRequest.getRecipient().getRecipientType();
         String title = messageSendRequest.getTitle();
 
@@ -28,7 +25,7 @@ public class MessageKeyGeneratorImpl implements MessageKeyGenerator {
             throw new IllegalArgumentException("Request must not be null");
         }
 
-        if (Objects.isNull(messageSendRequest.getDedupStrategy())){
+        if (Objects.isNull(messageSendRequest.getDedupParameters().getDedupStrategy())){
             throw new IllegalArgumentException("DedupStrategy must not be null");
         }
 

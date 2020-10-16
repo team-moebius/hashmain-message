@@ -1,5 +1,6 @@
 package com.moebius.message.keygen
 
+import com.moebius.message.domain.DedupParameters
 import com.moebius.message.domain.DedupStrategy
 import com.moebius.message.domain.MessageSendRequest
 import com.moebius.message.domain.Recipient
@@ -15,7 +16,10 @@ class MessageKeyGeneratorImplTest extends Specification {
     def "Test generate messageKey from valid request"() {
         given:
         def request = MessageSendRequest.builder()
-                .dedupStrategy(dedupStrategy)
+                .dedupParameters(DedupParameters.builder()
+                        .dedupStrategy(dedupStrategy)
+                        .dedupPeriodMinutes(1)
+                        .build())
                 .title(title)
                 .recipient(Recipient
                         .builder()
@@ -46,7 +50,10 @@ class MessageKeyGeneratorImplTest extends Specification {
     def "Test generate messageKey from invalid request"() {
         given:
         def request = MessageSendRequest.builder()
-                .dedupStrategy(dedupStrategy)
+                .dedupParameters(DedupParameters.builder()
+                        .dedupStrategy(dedupStrategy)
+                        .dedupPeriodMinutes(5)
+                        .build())
                 .title(title)
                 .recipient(Recipient
                         .builder()

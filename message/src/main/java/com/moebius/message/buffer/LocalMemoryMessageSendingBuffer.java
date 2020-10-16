@@ -1,6 +1,7 @@
 package com.moebius.message.buffer;
 
 import com.moebius.message.domain.BufferedMessages;
+import com.moebius.message.domain.DedupParameters;
 import com.moebius.message.domain.MessageSendRequest;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -34,7 +35,7 @@ public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
             Mono.error(new IllegalArgumentException("MessageSendRequest must not be null"));
         }
 
-        if (Objects.isNull(messageSendRequest.getDedupStrategy())){
+        if (Objects.isNull(messageSendRequest.getDedupParameters().getDedupStrategy())){
             Mono.error(new IllegalArgumentException("DedupStrategy of MessageSendRequest must not be null"));
         }
         return Mono.empty();
@@ -63,8 +64,10 @@ public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
     }
 
     private BufferedMessages createBufferedMessages(String messageKey, MessageSendRequest messageSendRequest){
+        DedupParameters dedupParameters = messageSendRequest.getDedupParameters();
         return new BufferedMessages(
-                messageSendRequest.getDedupStrategy(), LocalDateTime.now(), new LinkedList<>(), messageKey
+                dedupParameters.getDedupStrategy(), dedupParameters.getDedupPeriodMinutes(),
+                LocalDateTime.now(), new LinkedList<>(), messageKey
         );
     }
 }

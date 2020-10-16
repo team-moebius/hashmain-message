@@ -40,7 +40,7 @@ class SlackMessageBuilderTest extends Specification {
         ]
 
         def request = new MessageSendRequest(
-                DedupStrategy.NO_DEDUP, "Some test title",
+                DedupParameters.noDedup(), "Some test title",
                 new MessageBody(templateId, messageParam),
                 new Recipient(RecipientType.SLACK, "#test_channel")
         )

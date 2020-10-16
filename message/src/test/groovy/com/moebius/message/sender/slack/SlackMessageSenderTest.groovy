@@ -24,7 +24,7 @@ class SlackMessageSenderTest extends Specification {
     def "Test message sending"() {
         given:
         def request = new MessageSendRequest(
-                DedupStrategy.NO_DEDUP, title, new MessageBody(templateId, params),
+                DedupParameters.noDedup(), title, new MessageBody(templateId, params),
                 Recipient.builder()
                         .recipientId("some channel name")
                         .recipientType(RecipientType.SLACK)
@@ -50,7 +50,7 @@ class SlackMessageSenderTest extends Specification {
 
     def "Test message send failure"() {
         def request = new MessageSendRequest(
-                DedupStrategy.NO_DEDUP, title, new MessageBody(templateId, params),
+                DedupParameters.noDedup(), title, new MessageBody(templateId, params),
                 Recipient.builder()
                         .recipientId("some channel name")
                         .recipientType(RecipientType.SLACK)
