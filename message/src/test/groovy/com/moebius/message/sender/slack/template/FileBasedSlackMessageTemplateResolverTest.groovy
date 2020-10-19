@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.*
 
 class FileBasedSlackMessageTemplateResolverTest extends Specification {
     def sut = new FileBasedSlackMessageTemplateResolver()
+    def webhookUrlInTestTemplate = "https://hooks.slack.com/services/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"
 
     def "Load template from resource"() {
         given:
@@ -20,6 +21,7 @@ class FileBasedSlackMessageTemplateResolverTest extends Specification {
         def loadedTemplate = sut.getTemplateById(templateId)
         then:
         assertThat(loadedTemplate, notNullValue())
+        assertThat(loadedTemplate.getWebHookUrl(), is(webhookUrlInTestTemplate))
         assertThat(loadedTemplate.attachmentTemplates, hasSize(1))
         def attachmentTemplate = loadedTemplate.attachmentTemplates[0]
 

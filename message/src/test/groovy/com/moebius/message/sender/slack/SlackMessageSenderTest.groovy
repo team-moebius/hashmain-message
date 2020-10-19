@@ -15,11 +15,15 @@ class SlackMessageSenderTest extends Specification {
     def messageBuilder = Mock(SlackMessageBuilder)
     def webHookUrl = "https://hooks.slack.com/services/SOME/WEBHOOK/URL"
 
-    def sut = new SlackMessageSender(mockWebClient, messageBuilder, webHookUrl)
+    def sut = new SlackMessageSender(mockWebClient, messageBuilder)
 
     def mockSlackMessageDto = Mock(SlackMessageDto)
     def mockRequestBodyBuilder = Mock(WebClient.RequestBodyUriSpec)
     def mockResponse = Mock(ClientResponse)
+
+    def setup(){
+        mockSlackMessageDto.getWebHookUrl() >> webHookUrl
+    }
 
     def "Test message sending"() {
         given:

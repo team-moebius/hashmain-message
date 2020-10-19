@@ -12,12 +12,13 @@ import spock.lang.Specification
 
 class SlackMessageBuilderTest extends Specification {
     def mockTemplateResolver = Mock(SlackMessageTemplateResolver)
+    def webhookUrl = "https://hooks.slack.com/services/some/webhook/url"
 
     def sut = new SlackMessageBuilder(mockTemplateResolver)
 
     def "Test Build message with valid template"() {
         given:
-        def messageTemplate = new SlackMessageTemplate([
+        def messageTemplate = new SlackMessageTemplate(webhookUrl, [
                 new SlackAttachmentTemplate(
                         new TextRefRule("color"), new TextRefRule("author"), new TextRefRule("authorLink"),
                         new TextFormatRule("[\${tradeSymbol}] Heavy trades occurred at \${tradeCreatedAt}", ["tradeSymbol", "tradeCreatedAt"]),
@@ -51,6 +52,7 @@ class SlackMessageBuilderTest extends Specification {
         def message = sut.buildMessage(request)
 
         then:
+        message.getWebHookUrl() == webhookUrl
         message.attachments.size() == 1
         def attachment = message.attachments[0]
 

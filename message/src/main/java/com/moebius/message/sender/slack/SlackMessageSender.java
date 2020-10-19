@@ -13,19 +13,17 @@ import reactor.core.publisher.Mono;
 public class SlackMessageSender implements MessageSender {
     private final WebClient webClient;
     private final SlackMessageBuilder slackMessageBuilder;
-    private final String webHookUrl;
 
-    public SlackMessageSender(WebClient webClient, SlackMessageBuilder slackMessageBuilder, String webHookUrl) {
+    public SlackMessageSender(WebClient webClient, SlackMessageBuilder slackMessageBuilder) {
         this.webClient = webClient;
         this.slackMessageBuilder = slackMessageBuilder;
-        this.webHookUrl = webHookUrl;
     }
 
     @Override
     public Mono<Boolean> sendMessage(MessageSendRequest messageSendRequest) {
         return Mono.just(slackMessageBuilder.buildMessage(messageSendRequest))
                 .flatMap(slackMessageDto -> webClient.post()
-                            .uri(webHookUrl)
+                            .uri(slackMessageDto.getWebHookUrl())
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(slackMessageDto)
                             .exchange()

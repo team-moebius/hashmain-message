@@ -9,9 +9,11 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 public class SlackMessageTemplate {
+    private final String webHookUrl;
     private final List<SlackAttachmentTemplate> attachmentTemplates;
 
     public SlackMessageTemplate() {
+        this.webHookUrl = null;
         this.attachmentTemplates = new ArrayList<>();
     }
 }

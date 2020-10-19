@@ -10,5 +10,6 @@ import java.util.List;
 @Builder
 @ToString
 public class SlackMessageDto {
+    private final String webHookUrl;
     private final List<SlackAttachment> attachments;
 }

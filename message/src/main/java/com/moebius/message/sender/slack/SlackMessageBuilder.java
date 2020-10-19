@@ -31,6 +31,7 @@ public class SlackMessageBuilder {
                 .collect(Collectors.toList());
 
         return SlackMessageDto.builder()
+                .webHookUrl(messageTemplate.getWebHookUrl())
                 .attachments(attachments)
                 .build();
     }
