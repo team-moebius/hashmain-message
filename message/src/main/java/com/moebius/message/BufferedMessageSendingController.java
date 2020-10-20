@@ -35,7 +35,7 @@ public class BufferedMessageSendingController {
 
     private boolean shouldPickMessageFromBuffer(LocalDateTime requestedTime, BufferedMessages bufferedMessage) {
         LocalDateTime deadLineToSend = bufferedMessage.getFirstReceivedTime().plusMinutes(bufferedMessage.getDedupPeriod());
-        return deadLineToSend.isAfter(requestedTime);
+        return deadLineToSend.isBefore(requestedTime);
     }
 
     private Optional<MessageSendRequest> pickMessageSendingRequest(BufferedMessages bufferedMessages) {

@@ -19,7 +19,7 @@ class BufferedMessageSendingControllerTest extends Specification {
     def messageSender = Mock(MessageSender)
     def messageSendingBuffer = Mock(MessageSendingBuffer)
 
-    def deadLineToSendMessage = LocalDateTime.of(2020, 10, 12, 22, 25)
+    def requestedTime = LocalDateTime.of(2020, 10, 12, 22, 25)
     def dedupPeriodInMinutes = 1L
 
     @Subject
@@ -32,62 +32,60 @@ class BufferedMessageSendingControllerTest extends Specification {
     def "Test not sending when dedup strategy of messages saved on buffer are not LEAVE_LAST_ARRIVAL"() {
         given:
         def messagesInBuffer = [
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 5, 10),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 10, 5),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 15, 3),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 3, 2),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 21, 0),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 21, 1),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 5, -10),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 10, -5),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 15, -3),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 3, -2),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 21, -4),
         ]
         1 * messageSendingBuffer.getAllBufferedMessages() >> Flux.fromIterable(messagesInBuffer)
         0 * messageSender.sendMessage(_ as MessageSendRequest)
-        6 * messageSendingBuffer.dropKey(_ as String) >> Mono.just(true)
+        5 * messageSendingBuffer.dropKey(_ as String) >> Mono.just(true)
 
         expect:
-        StepVerifier.create(sut.sendBufferedMessagesBefore(deadLineToSendMessage))
+        StepVerifier.create(sut.sendBufferedMessagesBefore(requestedTime))
                 .verifyComplete()
     }
 
     def "Test not sending when all messages on buffer are saved before deadline"() {
         given:
         def messagesInBuffer = [
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, -10),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, -5),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, -3),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, -2),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, -1),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, 10),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, 5),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, 3),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, 2),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, 0),
         ]
         1 * messageSendingBuffer.getAllBufferedMessages() >> Flux.fromIterable(messagesInBuffer)
         0 * messageSender.sendMessage(_ as MessageSendRequest)
         0 * messageSendingBuffer.dropKey(_ as String)
 
         expect:
-        StepVerifier.create(sut.sendBufferedMessagesBefore(deadLineToSendMessage))
+        StepVerifier.create(sut.sendBufferedMessagesBefore(requestedTime))
                 .verifyComplete()
     }
 
     def "Test sending messages when all messages on buffer are saved after deadline and has dedup strategy of LEAVE_LAST_ARRIVAL"() {
         given:
         def messagesInBuffer = [
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, 10),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, 5),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, 3),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, 2),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, 4),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, 0),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, -10),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, -5),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, -3),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, -2),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, -4),
         ]
         1 * messageSendingBuffer.getAllBufferedMessages() >> Flux.fromIterable(messagesInBuffer)
-        6 * messageSender.sendMessage({
+        5 * messageSender.sendMessage({
             it.dedupParameters.dedupStrategy == DedupStrategy.LEAVE_LAST_ARRIVAL
         }) >> Mono.just(true)
-        6 * messageSendingBuffer.dropKey(_ as String) >> Mono.just(true)
+        5 * messageSendingBuffer.dropKey(_ as String) >> Mono.just(true)
 
         expect:
-        StepVerifier.create(sut.sendBufferedMessagesBefore(deadLineToSendMessage))
+        StepVerifier.create(sut.sendBufferedMessagesBefore(requestedTime))
                 .recordWith({ return [] })
                 .thenConsumeWhile({ true })
                 .consumeRecordedWith({
-                    assert it.size() == 6
+                    assert it.size() == 5
                     it.every { sendingResult ->
                         assert sendingResult.sent
                         assert !sendingResult.msgSavedToBuffer
@@ -101,21 +99,21 @@ class BufferedMessageSendingControllerTest extends Specification {
     def "Test sending messages only with LEAVE_LAST_ARRIVAL and saved before deadline saved time and dedup strategy are mixed on buffer"() {
         given:
         def messagesInBuffer = [
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 5, 10),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 10, 5),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 15, 3),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 3, 2),
-                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 21, 4),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, -10),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, -5),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, -3),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, -2),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, -1),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 5, -10),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 10, -5),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 15, -3),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 3, -2),
+                createBufferedMessages(DedupStrategy.LEAVE_FIRST_ARRIVAL, 21, -4),
                 createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, 10),
                 createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, 5),
                 createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, 3),
                 createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, 2),
-                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, 4),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, 0),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 5, -10),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 10, -5),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 15, -3),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 3, -2),
+                createBufferedMessages(DedupStrategy.LEAVE_LAST_ARRIVAL, 21, -4),
         ]
         1 * messageSendingBuffer.getAllBufferedMessages() >> Flux.fromIterable(messagesInBuffer)
         5 * messageSender.sendMessage({
@@ -124,7 +122,7 @@ class BufferedMessageSendingControllerTest extends Specification {
         10 * messageSendingBuffer.dropKey(_ as String) >> Mono.just(true)
 
         expect:
-        StepVerifier.create(sut.sendBufferedMessagesBefore(deadLineToSendMessage))
+        StepVerifier.create(sut.sendBufferedMessagesBefore(requestedTime))
                 .recordWith({ return [] })
                 .thenConsumeWhile({ true })
                 .consumeRecordedWith({
@@ -137,10 +135,10 @@ class BufferedMessageSendingControllerTest extends Specification {
                 .verifyComplete()
     }
 
-    BufferedMessages createBufferedMessages(DedupStrategy dedupStrategy, int msgCount, int minutesToAddDeadLine) {
+    BufferedMessages createBufferedMessages(DedupStrategy dedupStrategy, int msgCount, int minutesToAddRequestedTime) {
         def mockRecipient = new Recipient(RecipientType.SLACK, "")
-        def firstReceivedTime = deadLineToSendMessage.plusMinutes(minutesToAddDeadLine)
-        def messageKey = "${dedupStrategy}-${msgCount}-${minutesToAddDeadLine}"
+        def firstReceivedTime = requestedTime.plusMinutes(minutesToAddRequestedTime)
+        def messageKey = "${dedupStrategy}-${msgCount}-${minutesToAddRequestedTime}"
 
         def msgRequests = IntStream.range(0, msgCount).mapToObj({
             new MessageSendRequest(
