@@ -1,6 +1,7 @@
 package com.moebius.message.sender.slack;
 
 import com.moebius.message.domain.MessageSendRequest;
+import com.moebius.message.domain.RecipientType;
 import com.moebius.message.sender.MessageSender;
 import groovy.util.logging.Slf4j;
 import org.springframework.http.MediaType;
@@ -34,5 +35,10 @@ public class SlackMessageSender implements MessageSender {
                     }
                     return true;
                 });
+    }
+
+    @Override
+    public RecipientType getRecipientType() {
+        return RecipientType.SLACK;
     }
 }
