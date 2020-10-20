@@ -8,13 +8,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
-    private static final Map<String, BufferedMessages> bufferedMessages = new Hashtable<>();
+    private static final Map<String, BufferedMessages> bufferedMessages = new ConcurrentHashMap<>();
     @Override
     public Mono<Boolean> hasDuplicatedMessageWith(String messageKey) {
         return Mono.just(bufferedMessages.containsKey(messageKey));
