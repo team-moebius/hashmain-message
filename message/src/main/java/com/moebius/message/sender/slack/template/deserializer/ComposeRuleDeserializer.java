@@ -10,12 +10,14 @@ import com.moebius.message.sender.slack.template.rule.ComposeRule;
 import com.moebius.message.sender.slack.template.rule.StaticTextRule;
 import com.moebius.message.sender.slack.template.rule.TextFormatRule;
 import com.moebius.message.sender.slack.template.rule.TextRefRule;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class ComposeRuleDeserializer extends JsonDeserializer<ComposeRule> {
     private final static String REFER_TYPE = "refer";
     private final static String FORMAT_TYPE = "format";

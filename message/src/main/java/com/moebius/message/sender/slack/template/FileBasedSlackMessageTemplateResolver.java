@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.moebius.message.sender.slack.template.deserializer.ComposeRuleDeserializer;
 import com.moebius.message.sender.slack.template.domain.SlackMessageTemplate;
 import com.moebius.message.sender.slack.template.rule.ComposeRule;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 
+@Component
 public class FileBasedSlackMessageTemplateResolver implements SlackMessageTemplateResolver {
     private final static String BASE_TEMPLATE_RESOURCE_PATH = "/templates/slack/%s.json";
     private final ObjectMapper objectMapper;
