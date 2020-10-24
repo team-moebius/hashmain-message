@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: local
+  kafka:
+    bootstrap-servers: kafka.hashmainpro.com:9092
+    client-id: moebius
+    consumer:
+      client-id: moebius-consumer
+      auto-offset-reset: latest
+      group-id: moebius-consumer
