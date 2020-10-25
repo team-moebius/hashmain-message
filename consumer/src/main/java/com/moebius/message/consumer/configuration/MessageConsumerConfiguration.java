@@ -24,7 +24,8 @@ public class MessageConsumerConfiguration implements ApplicationListener<Applica
     }
 
     @Scheduled(cron = "0 * * * * *")
-    public void sendMessagesOnBuffer(){
-        bufferedMessageSendingController.sendBufferedMessagesBefore(LocalDateTime.now());
+    public void sendMessagesOnBuffer() {
+        bufferedMessageSendingController.sendBufferedMessagesBefore(LocalDateTime.now())
+                .subscribe();
     }
 }
