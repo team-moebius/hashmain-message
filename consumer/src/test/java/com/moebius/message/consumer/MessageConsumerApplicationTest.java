@@ -40,8 +40,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -96,7 +95,7 @@ public class MessageConsumerApplicationTest {
         Thread.sleep(90000);
 
         verify(messageSendingController, times(requestDtoList.size())).receiveMessageSendRequest(any());
-        verify(bufferedMessageSendingController, times(1)).sendBufferedMessagesBefore(any());
+        verify(bufferedMessageSendingController, atLeast(1)).sendBufferedMessagesBefore(any());
     }
 
     private SenderOptions<String, MessageSendRequestDto> senderOptions() {
