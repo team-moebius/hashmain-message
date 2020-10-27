@@ -2,12 +2,14 @@ package com.moebius.message.consumer.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class MessageBodyDto {
-    private final String templateId;
-    private final Map<String, String> parameters;
+    private String templateId;
+    private Map<String, String> parameters;
 }
