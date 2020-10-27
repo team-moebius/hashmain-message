@@ -49,6 +49,10 @@ class MessageSendingIntegrationTest extends Specification {
             "priceChange": "-123,123", "unitCurrency": "KRW", "priceChangeRatio": "-23",
     ]
 
+    def setup() {
+        LocalMemoryMessageSendingBuffer.bufferedMessages.clear()
+    }
+
     def "Message from original request and saved on buffer sending test"() {
         given:
         def dedupStrategySequences = [

@@ -29,13 +29,15 @@ public class MessageSendingController {
                         shouldSendMessage(messageKey, dedupStrategy), shouldPutBuffer(dedupStrategy)
                         )
                 )
-                .doOnSuccess(conditionPair->saveToBuffer(messageSendRequest, messageKey, conditionPair.getT2()))
+                .flatMap(conditionPair -> saveToBuffer(messageSendRequest, messageKey, conditionPair.getT2())
+                        .map(result -> conditionPair)
+                )
                 .filter(Tuple2::getT1)
-                .flatMap(conditionPair->sendMessage(messageSendRequest, conditionPair.getT2()))
+                .flatMap(conditionPair -> sendMessage(messageSendRequest, conditionPair.getT2()))
                 .switchIfEmpty(createResultOnly());
     }
 
-    private DedupStrategy getDedupStrategyFromRequest(MessageSendRequest request){
+    private DedupStrategy getDedupStrategyFromRequest(MessageSendRequest request) {
         return Optional.ofNullable(request.getDedupParameters())
                 .map(DedupParameters::getDedupStrategy)
                 .orElse(DedupStrategy.NO_DEDUP);
@@ -46,7 +48,7 @@ public class MessageSendingController {
             return Mono.just(true);
         } else if (DedupStrategy.LEAVE_FIRST_ARRIVAL.equals(dedupStrategy)) {
             return messageSendingBuffer.hasDuplicatedMessageWith(messageKey)
-                    .map(hasDuplicatedMessage->!hasDuplicatedMessage);
+                    .map(hasDuplicatedMessage -> !hasDuplicatedMessage);
         } else {
             return Mono.just(false);
         }
@@ -56,10 +58,11 @@ public class MessageSendingController {
         return Mono.just(!DedupStrategy.NO_DEDUP.equals(dedupStrategy));
     }
 
-    private void saveToBuffer(MessageSendRequest messageSendRequest, String messageKey, Boolean shouldSaveBuffer) {
-        if (shouldSaveBuffer){
-            messageSendingBuffer.put(messageKey, messageSendRequest);
+    private Mono<Boolean> saveToBuffer(MessageSendRequest messageSendRequest, String messageKey, Boolean shouldSaveBuffer) {
+        if (shouldSaveBuffer) {
+            return messageSendingBuffer.put(messageKey, messageSendRequest);
         }
+        return Mono.just(false);
     }
 
     private Mono<MessageSendingResult> sendMessage(MessageSendRequest messageSendRequest, boolean savedToBuffer) {
