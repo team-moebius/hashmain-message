@@ -1,0 +1,58 @@
+{
+  "webHookUrl": "https://hooks.slack.com/services/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",
+  "attachmentTemplates": [
+    {
+      "color": {
+        "type": "refer",
+        "targetField": "color"
+      },
+      "author": {
+        "type": "refer",
+        "targetField": "author"
+      },
+      "authorLink": {
+        "type": "refer",
+        "targetField": "authorLink"
+      },
+      "text": {
+        "type": "format",
+        "formatString": "[${tradeSymbol}] Heavy trades occurred at ${tradeCreatedAt}",
+        "targetFields": ["tradeSymbol", "tradeCreatedAt"]
+      },
+      "fields": [
+        {
+          "title": "Total ask volume",
+          "value": {
+            "type": "format",
+            "formatString": "${tradeVolume} ${tradeCurrency}",
+            "targetFields": ["tradeVolume", "tradeCurrency"]
+          }
+        },
+        {
+          "title": "Total bid volume",
+          "value": {
+            "type": "format",
+            "formatString": "${bidVolume} ${bidCurrency}",
+            "targetFields": ["bidVolume", "bidCurrency"]
+          }
+        },
+        {
+          "title": "Current Price",
+          "value": {
+            "type": "format",
+            "formatString": "${tradePrice} ${unitCurrency}",
+            "targetFields": ["tradePrice", "unitCurrency"]
+          }
+        },
+        {
+          "title": "Price change",
+          "value": {
+            "type": "format",
+            "formatString": "${priceChange} ${unitCurrency} (${priceChangeRatio}%)",
+            "targetFields": ["priceChange", "unitCurrency", "priceChangeRatio"]
+          }
+        }
+      ]
+    }
+  ]
+}
