@@ -4,28 +4,31 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import reactor.kafka.receiver.ReceiverOptions;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties(KafkaProperties.class)
+@Profile({"prod", "local"})
 public class KafkaConsumerConfiguration {
     private final KafkaProperties kafkaProperties;
     private static final String SECURITY_PROTOCOL = "SASL_PLAINTEXT";
     private static final String SASL_MECHANISM = "PLAIN";
 
     @Bean
-    public Map<String, String> receiverDefaultProperties() {
-        Map<String, String> receiverDefaultProperties = new HashMap<>();
+    public ReceiverOptions<?, ?> baseReceiverOptions(){
+        Map<String, Object> receiverDefaultProperties = new HashMap<>();
         receiverDefaultProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, String.join(",", kafkaProperties.getBootstrapServers()));
         receiverDefaultProperties.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaProperties.getConsumer().getClientId());
         receiverDefaultProperties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumer().getGroupId());
@@ -38,8 +41,7 @@ public class KafkaConsumerConfiguration {
                     receiverDefaultProperties.put(SaslConfigs.SASL_JAAS_CONFIG, jaasConfig);
                 });
 
-
-        return receiverDefaultProperties;
+        return ReceiverOptions.create(receiverDefaultProperties);
     }
 
     private String getJaasConfig() {

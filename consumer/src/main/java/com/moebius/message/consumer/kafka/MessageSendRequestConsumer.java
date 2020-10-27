@@ -7,23 +7,24 @@ import groovy.util.logging.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverOffset;
+import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Component
-public class MessageSendRequestConsumer extends KafkaConsumer<String, MessageSendRequestDto>{
+public class MessageSendRequestConsumer extends KafkaConsumer<String, MessageSendRequestDto> {
     private static final String MESSAGE_SENDING_KAFKA_TOPIC = "moebius.message.send";
     private final MessageSendingController messageSendingController;
     private final MessageSendRequestAssembler requestAssembler;
 
-    public MessageSendRequestConsumer(Map<String, String> receiverDefaultProperties,
+    public MessageSendRequestConsumer(ReceiverOptions<?, ?> baseReceiverOptions,
                                       MessageSendingController controller,
                                       MessageSendRequestAssembler requestAssembler) {
-        super(receiverDefaultProperties);
+        super(baseReceiverOptions);
         this.messageSendingController = controller;
         this.requestAssembler = requestAssembler;
 
@@ -39,7 +40,8 @@ public class MessageSendRequestConsumer extends KafkaConsumer<String, MessageSen
         ReceiverOffset offset = record.receiverOffset();
         Optional.of(record.value())
                 .map(requestAssembler::assembleMessageSendRequest)
-                .map(messageSendingController::receiveMessageSendRequest);
+                .map(messageSendingController::receiveMessageSendRequest)
+                .map(Mono::subscribe);
 
         offset.acknowledge();
     }

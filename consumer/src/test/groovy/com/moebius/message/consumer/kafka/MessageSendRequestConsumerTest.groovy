@@ -5,6 +5,7 @@ import com.moebius.message.consumer.assembler.MessageSendRequestAssembler
 import com.moebius.message.consumer.dto.MessageBodyDto
 import com.moebius.message.consumer.dto.MessageSendRequestDto
 import reactor.kafka.receiver.ReceiverOffset
+import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.receiver.ReceiverRecord
 import spock.lang.Specification
 import spock.lang.Subject
@@ -12,9 +13,10 @@ import spock.lang.Subject
 class MessageSendRequestConsumerTest extends Specification {
     def sendController = Mock(MessageSendingController)
     def assembler = new MessageSendRequestAssembler()
+    def receiverOptions = ReceiverOptions.create([:])
 
     @Subject
-    def sut = new MessageSendRequestConsumer([:], sendController, assembler)
+    def sut = new MessageSendRequestConsumer(receiverOptions, sendController, assembler)
 
     def "Receive request from Kafka and request send"(){
         given:

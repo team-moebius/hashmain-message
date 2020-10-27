@@ -10,19 +10,18 @@ import reactor.kafka.receiver.ReceiverRecord;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 public abstract class KafkaConsumer<K, V> {
 	private final KafkaReceiver<K, V> receiver;
 
-	public KafkaConsumer(Map<String, String> receiverDefaultProperties) {
-		Map<String, Object> properties = new HashMap<>(receiverDefaultProperties);
-		properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, getKeyDeserializerClass());
-		properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerClass());
+	public KafkaConsumer(ReceiverOptions<?, ?> baseReceiverOptions) {
+		Map<String, Object> consumerProperties = baseReceiverOptions.consumerProperties();
+		consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, getKeyDeserializerClass());
+		consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerClass());
 
-		ReceiverOptions<K, V> receiverOptions = ReceiverOptions.create(properties);
+		ReceiverOptions<K, V> receiverOptions = ReceiverOptions.create(consumerProperties);
 		receiverOptions.subscription(Collections.singleton(getTopic()))
 			.addAssignListener(partitions -> log.debug("[Kafka] onPartitionsAssigned {}", partitions))
 			.addRevokeListener(partitions -> log.debug("[Kafka] onPartitionsRevoked {}", partitions));
@@ -42,8 +41,6 @@ public abstract class KafkaConsumer<K, V> {
 		log.info("[Kafka] Start to read messages. [{}]", getTopic());
 		receiver.receive()
 			.publishOn(Schedulers.elastic())
-			.groupBy(ConsumerRecord::key)
-			.flatMap(groupedFlux -> groupedFlux.sampleFirst(Duration.ofSeconds(3)))
 			.subscribe(this::processRecord);
 	}
 }
