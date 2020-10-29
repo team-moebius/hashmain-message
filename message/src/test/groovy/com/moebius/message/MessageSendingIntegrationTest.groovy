@@ -11,11 +11,13 @@ import com.moebius.message.sender.slack.template.FileBasedSlackMessageTemplateRe
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.time.Duration
 import java.time.LocalDateTime
 
+@Ignore
 class MessageSendingIntegrationTest extends Specification {
     def messageSendingBuffer = new LocalMemoryMessageSendingBuffer()
     def messageKeyGenerator = new MessageKeyGeneratorImpl()
