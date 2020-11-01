@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local
+    active: prod
   kafka:
     bootstrap-servers: kafka.hashmainpro.com:9092
     client-id: moebius
