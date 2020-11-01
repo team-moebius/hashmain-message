@@ -1,4 +1,9 @@
 # hashmain-message
+## Status
+| Build | Deploy on dev |
+|:---:|:---:|
+|![Build - moebius message](https://github.com/team-moebius/hashmain-message/workflows/Build%20-%20moebius%20message/badge.svg)|![Deploy on dev - moebius message](https://github.com/team-moebius/hashmain-message/workflows/Deploy%20on%20dev%20-%20moebius%20message/badge.svg)
+
 ## Goal
 * Provide a common interface for each message send method
     * Currently, supported methods are Slack and Email
