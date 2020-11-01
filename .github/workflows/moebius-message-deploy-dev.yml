@@ -1,4 +1,4 @@
-name: Deployment on dev - moebius message
+name: Deploy on dev - moebius message
 
 on:
   push:
