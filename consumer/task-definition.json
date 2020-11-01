@@ -58,6 +58,7 @@
     }
   ],
   "placementConstraints": [],
+  "cpu": "1024",
   "memory": "2048",
   "taskRoleArn": "arn:aws:iam::435149896473:role/ecsTaskExecutionRole",
   "family": "moebius-message",
@@ -66,7 +67,6 @@
     "FARGATE"
   ],
   "networkMode": "awsvpc",
-  "cpu": "1024",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
   "volumes": []

@@ -1,10 +1,9 @@
-name: Dev deploy - moebius message
+name: Deployment on dev - moebius message
 
 on:
   push:
     branches:
       - master
-      - HMM-*
 
 jobs:
   deploy:

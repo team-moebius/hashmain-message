@@ -6,7 +6,6 @@ name: Build - moebius message
 on:
   push:
     branches:
-      - master
       - HMM-*
 
 jobs:
