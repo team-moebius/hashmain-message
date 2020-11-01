@@ -13,3 +13,4 @@ spring:
       options:
         username: moebius
         password: VVbRzWYK4OHE
+      enabled: true
