@@ -55,8 +55,8 @@ public class MessageConsumerApplicationTest {
     private BufferedMessageSendingController bufferedMessageSendingController;
 
     public static String MESSAGE_TOPIC = "moebius.message.send";
-    private static String TEST_GROUP_ID = "testGroup";
-    private static String AUTO_COMMIT = "false";
+    private static final String TEST_GROUP_ID = "testGroup";
+    private static final String AUTO_COMMIT = "false";
 
     @Test
     public void contextLoads() {
