@@ -33,7 +33,7 @@ public class KafkaConsumerConfiguration {
         receiverDefaultProperties.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaProperties.getConsumer().getClientId());
         receiverDefaultProperties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumer().getGroupId());
         receiverDefaultProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaProperties.getConsumer().getAutoOffsetReset());
-        receiverDefaultProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "com.moebius.message.consumer.dto");
+        receiverDefaultProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "com.moebius.message.consumer.dto, com.moebius.backend.dto.message");
         Optional.ofNullable(getJaasConfig())
                 .ifPresent(jaasConfig->{
                     receiverDefaultProperties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SECURITY_PROTOCOL);

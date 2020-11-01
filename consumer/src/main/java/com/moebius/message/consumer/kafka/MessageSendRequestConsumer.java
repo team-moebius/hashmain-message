@@ -2,7 +2,7 @@ package com.moebius.message.consumer.kafka;
 
 import com.moebius.message.MessageSendingController;
 import com.moebius.message.consumer.assembler.MessageSendRequestAssembler;
-import com.moebius.message.consumer.dto.MessageSendRequestDto;
+import com.moebius.backend.dto.message.MessageSendRequestDto;
 import groovy.util.logging.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
