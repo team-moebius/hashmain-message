@@ -2,13 +2,11 @@ package com.moebius.message.consumer.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import reactor.core.scheduler.Schedulers;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 

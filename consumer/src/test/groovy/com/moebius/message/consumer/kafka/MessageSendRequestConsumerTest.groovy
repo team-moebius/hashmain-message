@@ -2,8 +2,8 @@ package com.moebius.message.consumer.kafka
 
 import com.moebius.message.MessageSendingController
 import com.moebius.message.consumer.assembler.MessageSendRequestAssembler
-import com.moebius.message.consumer.dto.MessageBodyDto
-import com.moebius.message.consumer.dto.MessageSendRequestDto
+import com.moebius.backend.dto.message.MessageBodyDto
+import com.moebius.backend.dto.message.MessageSendRequestDto
 import reactor.kafka.receiver.ReceiverOffset
 import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.receiver.ReceiverRecord

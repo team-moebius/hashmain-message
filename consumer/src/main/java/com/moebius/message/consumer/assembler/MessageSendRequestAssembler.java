@@ -1,6 +1,6 @@
 package com.moebius.message.consumer.assembler;
 
-import com.moebius.message.consumer.dto.MessageSendRequestDto;
+import com.moebius.backend.dto.message.MessageSendRequestDto;
 import com.moebius.message.domain.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Component;

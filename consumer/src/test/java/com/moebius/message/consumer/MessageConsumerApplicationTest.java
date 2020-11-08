@@ -2,16 +2,13 @@ package com.moebius.message.consumer;
 
 import com.moebius.message.BufferedMessageSendingController;
 import com.moebius.message.MessageSendingController;
-import com.moebius.message.consumer.dto.MessageBodyDto;
-import com.moebius.message.consumer.dto.MessageSendRequestDto;
+import com.moebius.backend.dto.message.MessageBodyDto;
+import com.moebius.backend.dto.message.MessageSendRequestDto;
 import com.moebius.message.domain.DedupStrategy;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,10 +19,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.kafka.test.EmbeddedKafkaBroker;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
@@ -55,8 +48,8 @@ public class MessageConsumerApplicationTest {
     private BufferedMessageSendingController bufferedMessageSendingController;
 
     public static String MESSAGE_TOPIC = "moebius.message.send";
-    private static String TEST_GROUP_ID = "testGroup";
-    private static String AUTO_COMMIT = "false";
+    private static final String TEST_GROUP_ID = "testGroup";
+    private static final String AUTO_COMMIT = "false";
 
     @Test
     public void contextLoads() {

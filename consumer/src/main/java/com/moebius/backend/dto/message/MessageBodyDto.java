@@ -1,4 +1,4 @@
-package com.moebius.message.consumer.dto;
+package com.moebius.backend.dto.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
