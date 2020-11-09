@@ -8,15 +8,18 @@ import com.moebius.message.domain.MessageSendingResult;
 import com.moebius.message.sender.MessageSender;
 import com.moebius.message.sender.MessageSenderResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class BufferedMessageSendingController {
     private final MessageSendingBuffer messageSendingBuffer;
@@ -40,7 +43,13 @@ public class BufferedMessageSendingController {
 
     private Optional<MessageSendRequest> pickMessageSendingRequest(BufferedMessages bufferedMessages) {
         DedupStrategy dedupStrategy = bufferedMessages.getDedupStrategy();
+
         if (DedupStrategy.LEAVE_LAST_ARRIVAL.equals(dedupStrategy)) {
+            int requestSize = bufferedMessages.getMessageSendRequests().size();
+            log.info("[Message] {} messages with key {} are dropped from total {} messages",
+                    requestSize - 1, bufferedMessages.getMessageKey(), requestSize
+            );
+
             return Optional.ofNullable(bufferedMessages.getMessageSendRequests())
                     .filter(CollectionUtils::isNotEmpty)
                     .map(requests -> requests.get(requests.size() - 1));
