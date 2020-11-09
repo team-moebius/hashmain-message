@@ -20,7 +20,7 @@
       },
       "text": {
         "type": "format",
-        "formatString": "[${symbol}] Heavy trades(*${totalValidPrice}${unitCurrency}*) occurred during ${from} ~ ${to}",
+        "formatString": "[${symbol}] Heavy trades (*${totalValidPrice}${unitCurrency}*) occurred during ${from} ~ ${to}",
         "targetFields": [
           "symbol",
           "totalValidPrice",
@@ -31,23 +31,23 @@
       },
       "fields": [
         {
-          "title": "Total ask volume",
+          "title": "Total ask price",
           "value": {
             "type": "format",
-            "formatString": "${totalAskVolume} ${targetCurrency}",
+            "formatString": "${totalAskPrice} ${targetCurrency}",
             "targetFields": [
-              "totalAskVolume",
+              "totalAskPrice",
               "targetCurrency"
             ]
           }
         },
         {
-          "title": "Total bid volume",
+          "title": "Total bid price",
           "value": {
             "type": "format",
-            "formatString": "${totalBidVolume} ${targetCurrency}",
+            "formatString": "${totalBidPrice} ${targetCurrency}",
             "targetFields": [
-              "totalBidVolume",
+              "totalBidPrice",
               "targetCurrency"
             ]
           }
