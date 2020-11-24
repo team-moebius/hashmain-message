@@ -51,6 +51,17 @@
             "formatString": "${priceChange} ${unitCurrency} (${priceChangeRatio}%)",
             "targetFields": ["priceChange", "unitCurrency", "priceChangeRatio"]
           }
+        },
+        {
+          "title": {
+            "type": "optionalText",
+            "text": "Subscribers",
+            "targetField": "subscribers"
+          },
+          "value": {
+            "type": "refer",
+            "targetField": "subscribers"
+          }
         }
       ]
     }

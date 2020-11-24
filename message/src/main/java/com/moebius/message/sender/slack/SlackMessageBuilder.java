@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,17 +68,20 @@ public class SlackMessageBuilder {
     private List<Field> buildFields(SlackAttachmentTemplate attachmentTemplate, Map<String, String> messageParameters) {
         return attachmentTemplate.getFields().stream()
                 .map(fieldTemplate -> this.buildField(fieldTemplate, messageParameters))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     private Field buildField(SlackFieldTemplate fieldTemplate, Map<String, String> messageParameters) {
-        String title = buildFieldOrNull(fieldTemplate.getTitle(), messageParameters);
-        String value = buildFieldOrNull(fieldTemplate.getValue(), messageParameters);
-
-        return Field.builder()
-                .title(title)
-                .value(value)
-                .build();
+        return Optional.ofNullable(buildFieldOrNull(fieldTemplate.getTitle(), messageParameters))
+                .map(title->{
+                    String value = buildFieldOrNull(fieldTemplate.getValue(), messageParameters);
+                    return Field.builder()
+                            .title(title)
+                            .value(value)
+                            .build();
+                })
+                .orElse(null);
     }
 
     private String buildFieldOrNull(ComposeRule composeRule, Map<String, String> messageParameters) {
