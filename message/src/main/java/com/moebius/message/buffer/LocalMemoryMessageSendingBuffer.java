@@ -4,18 +4,14 @@ import com.moebius.message.domain.BufferedMessages;
 import com.moebius.message.domain.DedupParameters;
 import com.moebius.message.domain.MessageSendRequest;
 import com.moebius.message.util.MessageUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
     private static final Map<String, BufferedMessages> bufferedMessages = new ConcurrentHashMap<>();
     @Override
