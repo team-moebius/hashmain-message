@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,8 +54,9 @@ public class RedisMessageSendingBuffer implements MessageSendingBuffer {
     }
 
     private RedisBufferedMessagesDto toRedisBufferDto(String messageKey, MessageSendRequest messageSendRequest) {
+
         return new RedisBufferedMessagesDto(
-                messageKey, LocalDateTime.now(),
+                messageKey, System.currentTimeMillis(),
                 messageSendRequest.getDedupParameters().getDedupStrategy().name(),
                 messageSendRequest.getDedupParameters().getDedupPeriodMinutes(),
                 messageSendRequest.getTitle(),
@@ -64,7 +67,10 @@ public class RedisMessageSendingBuffer implements MessageSendingBuffer {
     }
     private BufferedMessages fromRedisBufferedMessages(List<RedisBufferedMessagesDto> bufferedMessages){
         RedisBufferedMessagesDto firstReceivedMessage = bufferedMessages.get(0);
-        LocalDateTime firstReceivedTime = firstReceivedMessage.getFirstReceivedTime();
+
+        LocalDateTime firstReceivedTime = Instant.ofEpochMilli(firstReceivedMessage.getFirstReceivedMills())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
         String messageKey = firstReceivedMessage.getMessageKey();
 
         DedupStrategy dedupStrategy = EnumUtils.getEnum(DedupStrategy.class, firstReceivedMessage.getDedupStrategy(), DedupStrategy.NO_DEDUP);
@@ -79,7 +85,7 @@ public class RedisMessageSendingBuffer implements MessageSendingBuffer {
                 MessageBody.builder().templateId(redisBuffer.getTemplateId()).parameters(redisBuffer.getMessageParameter()).build(),
                 Recipient.builder()
                         .recipientId(redisBuffer.getRecipientId())
-                        .recipientType(EnumUtils.getEnum(RecipientType.class, firstReceivedMessage.getRecipientId())).build()
+                        .recipientType(EnumUtils.getEnum(RecipientType.class, firstReceivedMessage.getRecipientType())).build()
         )).collect(Collectors.toList());
 
         return new BufferedMessages(

@@ -97,7 +97,7 @@ class RedisMessageSendingBufferTest extends Specification {
         def allMessages = messageInBuffer.stream()
                 .map({
                     new RedisBufferedMessagesDto(
-                            it.first(), LocalDateTime.now(), DedupStrategy.LEAVE_LAST_ARRIVAL.name(), 1,
+                            it.first(), System.currentTimeMillis(), DedupStrategy.LEAVE_LAST_ARRIVAL.name(), 1,
                             it.first(), "test_tempate", [:], RecipientType.SLACK.name(), "test_channel"
                     )
                 })
