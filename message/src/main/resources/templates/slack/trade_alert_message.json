@@ -1,0 +1,81 @@
+{
+  "webHookUrl": "https://hooks.slack.com/services/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",
+  "attachmentTemplates": [
+    {
+      "color": {
+        "type": "refer",
+        "targetField": "color"
+      },
+      "author": {
+        "type": "format",
+        "formatString": "${exchange}-${symbol}",
+        "targetFields": [
+          "exchange",
+          "symbol"
+        ]
+      },
+      "authorLink": {
+        "type": "refer",
+        "targetField": "referenceLink"
+      },
+      "text": {
+        "type": "format",
+        "formatString": "[${symbol}] Heavy trades (*${totalValidPrice}${unitCurrency}*) occurred during ${from} ~ ${to}",
+        "targetFields": [
+          "symbol",
+          "totalValidPrice",
+          "unitCurrency",
+          "from",
+          "to"
+        ]
+      },
+      "fields": [
+        {
+          "title": "Total ask price",
+          "value": {
+            "type": "format",
+            "formatString": "${totalAskPrice} ${unitCurrency}",
+            "targetFields": [
+              "totalAskPrice",
+              "unitCurrency"
+            ]
+          }
+        },
+        {
+          "title": "Total bid price",
+          "value": {
+            "type": "format",
+            "formatString": "${totalBidPrice} ${unitCurrency}",
+            "targetFields": [
+              "totalBidPrice",
+              "unitCurrency"
+            ]
+          }
+        },
+        {
+          "title": "Current price (Change rate)",
+          "value": {
+            "type": "format",
+            "formatString": "${price}${unitCurrency}(${priceChangeRate}%)",
+            "targetFields": [
+              "price",
+              "unitCurrency",
+              "priceChangeRate"
+            ]
+          }
+        },
+        {
+          "title": {
+            "type": "optionalText",
+            "text": "Subscribers",
+            "targetField": "subscribers"
+          },
+          "value": {
+            "type": "refer",
+            "targetField": "subscribers"
+          }
+        }
+      ]
+    }
+  ]
+}
