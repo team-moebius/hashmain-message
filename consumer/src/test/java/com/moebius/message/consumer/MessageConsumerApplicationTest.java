@@ -109,7 +109,7 @@ public class MessageConsumerApplicationTest {
         kafkaSender.close();
 
 
-        Thread.sleep(90000);
+        Thread.sleep(120000);
 
         verify(messageSendingController, times(requestDtoList.size())).receiveMessageSendRequest(any());
         verify(bufferedMessageSendingController, atLeast(1)).sendBufferedMessagesBefore(any());

@@ -1,5 +1,7 @@
 package com.moebius.message.sender.slack.template.rule;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Map;
 
 public class OptionalTextRule implements ComposeRule {
@@ -13,7 +15,7 @@ public class OptionalTextRule implements ComposeRule {
 
     @Override
     public String composeValue(Map<String, String> messageParams) {
-        if (messageParams.containsKey(targetField)){
+        if (StringUtils.isNoneEmpty(messageParams.getOrDefault(targetField, null))) {
             return text;
         }
         return null;
