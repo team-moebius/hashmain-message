@@ -15,5 +15,5 @@ spring:
         password: VVbRzWYK4OHE
       enabled: true
 redis:
-  master-server: 3.34.178.137
+  master-server: 172.31.30.232
   master-port: 6379
