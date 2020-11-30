@@ -3,18 +3,15 @@ package com.moebius.message.buffer;
 import com.moebius.message.domain.BufferedMessages;
 import com.moebius.message.domain.DedupParameters;
 import com.moebius.message.domain.MessageSendRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import com.moebius.message.util.MessageUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
     private static final Map<String, BufferedMessages> bufferedMessages = new ConcurrentHashMap<>();
     @Override
@@ -24,25 +21,10 @@ public class LocalMemoryMessageSendingBuffer implements MessageSendingBuffer {
 
     @Override
     public Mono<Boolean> put(String messageKey, MessageSendRequest messageSendRequest) {
-        return validateMessage(messageKey, messageSendRequest)
+        return MessageUtil.validateRequestAndKey(messageKey, messageSendRequest)
                 .switchIfEmpty(insertMessageSendRequest(messageKey, messageSendRequest));
     }
-
-    private Mono<Boolean> validateMessage(String messageKey, MessageSendRequest messageSendRequest) {
-        if (StringUtils.isEmpty(messageKey)){
-            return Mono.error(new IllegalArgumentException("Message Key must not be empty"));
-        }
-
-        if (Objects.isNull(messageSendRequest)){
-            Mono.error(new IllegalArgumentException("MessageSendRequest must not be null"));
-        }
-
-        if (Objects.isNull(messageSendRequest.getDedupParameters().getDedupStrategy())){
-            Mono.error(new IllegalArgumentException("DedupStrategy of MessageSendRequest must not be null"));
-        }
-        return Mono.empty();
-    }
-
+    
     @Override
     public Flux<BufferedMessages> getAllBufferedMessages() {
         return Flux.fromIterable(bufferedMessages.values());

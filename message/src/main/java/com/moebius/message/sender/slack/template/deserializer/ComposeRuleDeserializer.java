@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.moebius.message.sender.slack.template.rule.ComposeRule;
-import com.moebius.message.sender.slack.template.rule.StaticTextRule;
-import com.moebius.message.sender.slack.template.rule.TextFormatRule;
-import com.moebius.message.sender.slack.template.rule.TextRefRule;
+import com.moebius.message.sender.slack.template.rule.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,6 +18,7 @@ import java.util.List;
 public class ComposeRuleDeserializer extends JsonDeserializer<ComposeRule> {
     private final static String REFER_TYPE = "refer";
     private final static String FORMAT_TYPE = "format";
+    private final static String OPTIONAL_TEXT = "optionalText";
 
     @Override
     public ComposeRule deserialize(JsonParser p, DeserializationContext context) throws IOException {
@@ -35,11 +33,14 @@ public class ComposeRuleDeserializer extends JsonDeserializer<ComposeRule> {
         if (FORMAT_TYPE.equals(type)) {
             String formatString = getTextFromTreeNode(treeNode.get("formatString"));
             List<String> targetFields = getTextListFromTreeNode(treeNode.get("targetFields"));
-
             return new TextFormatRule(formatString, targetFields);
         } else if (REFER_TYPE.equals(type)) {
             String targetField = getTextFromTreeNode(treeNode.get("targetField"));
             return new TextRefRule(targetField);
+        } else if (OPTIONAL_TEXT.equals(type)) {
+            String text = getTextFromTreeNode(treeNode.get("text"));
+            String targetField = getTextFromTreeNode(treeNode.get("targetField"));
+            return new OptionalTextRule(text, targetField);
         }
 
         return null;

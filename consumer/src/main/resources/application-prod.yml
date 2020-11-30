@@ -14,3 +14,6 @@ spring:
         username: moebius
         password: VVbRzWYK4OHE
       enabled: true
+redis:
+  master-server: 3.34.178.137
+  master-port: 6379

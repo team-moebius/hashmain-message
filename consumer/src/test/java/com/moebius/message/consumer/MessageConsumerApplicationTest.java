@@ -1,10 +1,12 @@
 package com.moebius.message.consumer;
 
-import com.moebius.message.BufferedMessageSendingController;
-import com.moebius.message.MessageSendingController;
 import com.moebius.backend.dto.message.MessageBodyDto;
 import com.moebius.backend.dto.message.MessageSendRequestDto;
+import com.moebius.message.BufferedMessageSendingController;
+import com.moebius.message.MessageSendingController;
+import com.moebius.message.buffer.redis.RedisBufferedMessagesDto;
 import com.moebius.message.domain.DedupStrategy;
+import io.lettuce.core.ReadFrom;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,10 +15,20 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,7 +42,10 @@ import reactor.kafka.sender.SenderRecord;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -47,6 +62,9 @@ public class MessageConsumerApplicationTest {
     @SpyBean
     private BufferedMessageSendingController bufferedMessageSendingController;
 
+    @Autowired
+    private ReactiveRedisOperations<String, RedisBufferedMessagesDto> bufferOps;
+
     public static String MESSAGE_TOPIC = "moebius.message.send";
     private static final String TEST_GROUP_ID = "testGroup";
     private static final String AUTO_COMMIT = "false";
@@ -57,6 +75,10 @@ public class MessageConsumerApplicationTest {
 
     @Test
     public void messageSendTest() throws InterruptedException {
+        StepVerifier.create(bufferOps.keys("*").flatMap(key -> bufferOps.delete(key)))
+                .thenConsumeWhile(senderResultFlux -> true)
+                .expectComplete()
+                .verify();
         Map<String, String> messageParam = getMessageParam();
         List<MessageSendRequestDto> requestDtoList = Arrays.stream(new DedupStrategy[]{
                 DedupStrategy.NO_DEDUP, DedupStrategy.LEAVE_FIRST_ARRIVAL, DedupStrategy.LEAVE_LAST_ARRIVAL,
@@ -135,9 +157,30 @@ public class MessageConsumerApplicationTest {
             receiverDefaultProperties.put(ConsumerConfig.CLIENT_ID_CONFIG, "moebius-consumer");
             receiverDefaultProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "moebius-consumer");
             receiverDefaultProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-            receiverDefaultProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "com.moebius.message.consumer.dto");
+            receiverDefaultProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "com.moebius.message.consumer.dto, com.moebius.backend.dto.message");
 
             return ReceiverOptions.create(receiverDefaultProperties);
+        }
+
+        @Bean
+        public LettuceConnectionFactory redisConnectionFactory() {
+            LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                    .readFrom(ReadFrom.REPLICA_PREFERRED)
+                    .build();
+            RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration("localhost", 6379);
+            return new LettuceConnectionFactory(serverConfig, clientConfig);
+        }
+
+        @Bean
+        public ReactiveRedisOperations<String, RedisBufferedMessagesDto> redisOperations(ReactiveRedisConnectionFactory factory) {
+            Jackson2JsonRedisSerializer<RedisBufferedMessagesDto> serializer = new Jackson2JsonRedisSerializer<>(RedisBufferedMessagesDto.class);
+
+            RedisSerializationContext.RedisSerializationContextBuilder<String, RedisBufferedMessagesDto> builder
+                    = RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
+
+            RedisSerializationContext<String, RedisBufferedMessagesDto> context = builder.value(serializer).build();
+
+            return new ReactiveRedisTemplate<>(factory, context);
         }
     }
 }

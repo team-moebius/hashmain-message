@@ -5,6 +5,7 @@ import com.moebius.message.sender.slack.template.*
 import com.moebius.message.sender.slack.template.domain.SlackAttachmentTemplate
 import com.moebius.message.sender.slack.template.domain.SlackFieldTemplate
 import com.moebius.message.sender.slack.template.domain.SlackMessageTemplate
+import com.moebius.message.sender.slack.template.rule.OptionalTextRule
 import com.moebius.message.sender.slack.template.rule.StaticTextRule
 import com.moebius.message.sender.slack.template.rule.TextFormatRule
 import com.moebius.message.sender.slack.template.rule.TextRefRule
@@ -27,6 +28,8 @@ class SlackMessageBuilderTest extends Specification {
                                 new SlackFieldTemplate(new StaticTextRule("Total bid volume"), new TextFormatRule("\${bidVolume} \${bidCurrency}", ["bidVolume", "bidCurrency"])),
                                 new SlackFieldTemplate(new StaticTextRule("Current Price"), new TextFormatRule("\${tradePrice} \${unitCurrency}", ["tradePrice", "unitCurrency"])),
                                 new SlackFieldTemplate(new StaticTextRule("Price change"), new TextFormatRule("\${priceChange} \${unitCurrency} (\${priceChangeRatio}%)", ["priceChange", "unitCurrency", "priceChangeRatio"])),
+                                new SlackFieldTemplate(new OptionalTextRule("nullSubscriber", "fakeSubscribers"), new TextRefRule("fakeSubscribers")),
+                                new SlackFieldTemplate(new OptionalTextRule("Subscribers", "subscribers"), new TextRefRule("subscribers"))
                         ], null
                 )]
         )
@@ -38,6 +41,7 @@ class SlackMessageBuilderTest extends Specification {
                 "tradeSymbol": "BTC", "tradeCreatedAt": "17:30:24", "tradeVolume": "123", "tradeCurrency": "BTC",
                 "bidVolume": "456", "bidCurrency": "BTC", "tradePrice": "13,927,348",
                 "priceChange": "-123,123", "unitCurrency": "KRW", "priceChangeRatio": "-23",
+                "subscribers": "<@U019YV88QBV>"
         ]
 
         def request = new MessageSendRequest(
@@ -61,6 +65,8 @@ class SlackMessageBuilderTest extends Specification {
         attachment.authorLink == messageParam["authorLink"]
         attachment.text == "[${messageParam['tradeSymbol']}] Heavy trades occurred at ${messageParam['tradeCreatedAt']}"
 
+        attachment.fields.size() == 5
+
         attachment.fields[0].title == "Total ask volume"
         attachment.fields[0].value == "${messageParam['tradeVolume']} ${messageParam['tradeCurrency']}"
 
@@ -72,6 +78,9 @@ class SlackMessageBuilderTest extends Specification {
 
         attachment.fields[3].title == "Price change"
         attachment.fields[3].value == "${messageParam['priceChange']} ${messageParam['unitCurrency']} (${messageParam['priceChangeRatio']}%)"
+
+        attachment.fields[4].title == "Subscribers"
+        attachment.fields[4].value == "<@U019YV88QBV>"
 
     }
 

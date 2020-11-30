@@ -2,6 +2,7 @@ package com.moebius.message.sender.slack.template
 
 
 import com.moebius.message.sender.slack.template.domain.SlackFieldTemplate
+import com.moebius.message.sender.slack.template.rule.OptionalTextRule
 import com.moebius.message.sender.slack.template.rule.StaticTextRule
 import com.moebius.message.sender.slack.template.rule.TextFormatRule
 import com.moebius.message.sender.slack.template.rule.TextRefRule
@@ -40,7 +41,7 @@ class FileBasedSlackMessageTemplateResolverTest extends Specification {
                 is("[BTC] Heavy trades occurred at TODAY")
         )
 
-        assertThat(attachmentTemplate.fields, hasSize(4))
+        assertThat(attachmentTemplate.fields, hasSize(5))
         def firstFieldTemplate = attachmentTemplate.fields[0]
         assertThat(firstFieldTemplate, instanceOf(SlackFieldTemplate))
         assertThat(firstFieldTemplate.title, instanceOf(StaticTextRule))
@@ -79,6 +80,17 @@ class FileBasedSlackMessageTemplateResolverTest extends Specification {
         assertThat(
                 fourthFieldTemplate.value.composeValue(["priceChange":"123", "unitCurrency":"KRW", "priceChangeRatio": "34"]),
                 is("123 KRW (34%)")
+        )
+
+        def fifthFieldTemplate = attachmentTemplate.fields[4]
+        assertThat(fifthFieldTemplate, instanceOf(SlackFieldTemplate))
+        assertThat(fifthFieldTemplate.title, instanceOf(OptionalTextRule))
+        assertThat(fifthFieldTemplate.title.composeValue([:]), nullValue())
+        assertThat(fifthFieldTemplate.title.composeValue(["subscribers":"<@U019YV88QBV>"]), is("Subscribers"))
+        assertThat(fifthFieldTemplate.value, instanceOf(TextRefRule))
+        assertThat(
+                fifthFieldTemplate.value.composeValue(["subscribers":"<@U019YV88QBV>"]),
+                is("<@U019YV88QBV>")
         )
 
         assertThat(attachmentTemplate.footer, nullValue())
