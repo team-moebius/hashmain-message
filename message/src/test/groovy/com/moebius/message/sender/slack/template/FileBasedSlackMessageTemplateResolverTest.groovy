@@ -86,6 +86,7 @@ class FileBasedSlackMessageTemplateResolverTest extends Specification {
         assertThat(fifthFieldTemplate, instanceOf(SlackFieldTemplate))
         assertThat(fifthFieldTemplate.title, instanceOf(OptionalTextRule))
         assertThat(fifthFieldTemplate.title.composeValue([:]), nullValue())
+        assertThat(fifthFieldTemplate.title.composeValue(["subscribers": ""]), nullValue())
         assertThat(fifthFieldTemplate.title.composeValue(["subscribers":"<@U019YV88QBV>"]), is("Subscribers"))
         assertThat(fifthFieldTemplate.value, instanceOf(TextRefRule))
         assertThat(
