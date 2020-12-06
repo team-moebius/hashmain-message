@@ -1,28 +1,24 @@
 package com.moebius.message.buffer.redis
 
-import com.moebius.message.domain.DedupParameters
-import com.moebius.message.domain.DedupStrategy
-import com.moebius.message.domain.MessageBody
-import com.moebius.message.domain.MessageSendRequest
-import com.moebius.message.domain.Recipient
-import com.moebius.message.domain.RecipientType
+import com.moebius.message.buffer.redis.assembler.RedisMessageBufferAssembler
+import com.moebius.message.domain.*
+import org.springframework.data.redis.core.ReactiveListOperations
+import org.springframework.data.redis.core.ReactiveRedisOperations
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
-import org.springframework.data.redis.core.ReactiveRedisOperations
-import org.springframework.data.redis.core.ReactiveListOperations
 
-import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @SuppressWarnings(['GroovyAssignabilityCheck', 'GroovyAccessibility'])
 class RedisMessageSendingBufferTest extends Specification {
     ReactiveRedisOperations<String, RedisBufferedMessagesDto> mockRedisOps = Mock(ReactiveRedisOperations)
     ReactiveListOperations<String, RedisBufferedMessagesDto> mockListOps = Mock(ReactiveListOperations)
+    def assembler = new RedisMessageBufferAssembler()
     @Subject
-    def sut = new RedisMessageSendingBuffer(mockRedisOps)
+    def sut = new RedisMessageSendingBuffer(mockRedisOps, assembler)
 
     def setup(){
         mockRedisOps.opsForList() >> mockListOps
