@@ -42,12 +42,11 @@ public class BufferedMessageSendingController {
     }
 
     private Optional<MessageSendRequest> pickMessageSendingRequest(BufferedMessages bufferedMessages) {
-        DedupStrategy dedupStrategy = bufferedMessages.getDedupStrategy();
-
-        if (DedupStrategy.LEAVE_LAST_ARRIVAL.equals(dedupStrategy)) {
+        if (shouldSendMessage(bufferedMessages)) {
             int requestSize = bufferedMessages.getMessageSendRequests().size();
-            log.info("[Message] {} messages with key {} are dropped from total {} messages",
-                    requestSize - 1, bufferedMessages.getMessageKey(), requestSize
+            DedupStrategy dedupStrategy = bufferedMessages.getDedupStrategy();
+            log.info("[Message] {} messages with key {} are dropped from total {} messages with dedup strategy: {}",
+                    requestSize - 1, bufferedMessages.getMessageKey(), requestSize, dedupStrategy
             );
 
             return Optional.ofNullable(bufferedMessages.getMessageSendRequests())
@@ -56,6 +55,13 @@ public class BufferedMessageSendingController {
         } else {
             return Optional.empty();
         }
+    }
+
+    private boolean shouldSendMessage(BufferedMessages nullableMessages) {
+        return Optional.ofNullable(nullableMessages)
+            .map(bufferedMessages -> DedupStrategy.LEAVE_LAST_ARRIVAL
+                .equals(bufferedMessages.getDedupStrategy()))
+            .orElse(false);
     }
 
     private Mono<MessageSendingResult> sendMessageAndDropFromBuffer(

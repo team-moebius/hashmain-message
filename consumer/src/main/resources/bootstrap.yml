@@ -9,5 +9,5 @@ spring:
       auto-offset-reset: latest
       group-id: moebius-consumer
 redis:
-  master-server: 3.34.178.137
+  master-server: redis-internal.hashmainpro.com
   master-port: 6379

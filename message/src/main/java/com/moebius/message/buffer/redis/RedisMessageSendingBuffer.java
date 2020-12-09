@@ -1,6 +1,7 @@
 package com.moebius.message.buffer.redis;
 
 import com.moebius.message.buffer.MessageSendingBuffer;
+import com.moebius.message.buffer.redis.assembler.RedisMessageBufferAssembler;
 import com.moebius.message.domain.*;
 import com.moebius.message.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class RedisMessageSendingBuffer implements MessageSendingBuffer {
     private static final String REDIS_KEY_FORMAT_FOR_MSG_BUFFER = "msg.buffer.%s";
     private final ReactiveRedisOperations<String, RedisBufferedMessagesDto> bufferOps;
+    private final RedisMessageBufferAssembler bufferAssembler;
 
     @Override
     public Mono<Boolean> hasDuplicatedMessageWith(String messageKey) {
@@ -39,7 +41,7 @@ public class RedisMessageSendingBuffer implements MessageSendingBuffer {
                 .map(redisKey -> bufferOps.opsForList().range(redisKey, 0, -1))
                 .flatMap(Flux::collectList)
                 .filter(messages -> !messages.isEmpty())
-                .map(this::fromRedisBufferedMessages);
+                .map(bufferAssembler::toBufferedMessage);
     }
 
     @Override
@@ -49,51 +51,8 @@ public class RedisMessageSendingBuffer implements MessageSendingBuffer {
     }
 
     private Mono<Boolean> insertToBuffer(String messageKey, MessageSendRequest messageSendRequest) {
-        return bufferOps.opsForList().rightPush(toRedisKey(messageKey), toRedisBufferDto(messageKey, messageSendRequest))
+        return bufferOps.opsForList().rightPush(toRedisKey(messageKey), bufferAssembler.toRedisBuffer(messageKey, messageSendRequest))
                 .map(index -> index > 0);
-    }
-
-    private RedisBufferedMessagesDto toRedisBufferDto(String messageKey, MessageSendRequest messageSendRequest) {
-
-        return new RedisBufferedMessagesDto(
-                messageKey, System.currentTimeMillis(),
-                messageSendRequest.getDedupParameters().getDedupStrategy().name(),
-                messageSendRequest.getDedupParameters().getDedupPeriodMinutes(),
-                messageSendRequest.getTitle(),
-                messageSendRequest.getBody().getTemplateId(), messageSendRequest.getBody().getParameters(),
-                messageSendRequest.getRecipient().getRecipientType().name(),
-                messageSendRequest.getRecipient().getRecipientId()
-        );
-    }
-    private BufferedMessages fromRedisBufferedMessages(List<RedisBufferedMessagesDto> bufferedMessages){
-        RedisBufferedMessagesDto firstReceivedMessage = bufferedMessages.get(0);
-
-        LocalDateTime firstReceivedTime = Instant.ofEpochMilli(firstReceivedMessage.getFirstReceivedMills())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-        String messageKey = firstReceivedMessage.getMessageKey();
-
-        DedupStrategy dedupStrategy = EnumUtils.getEnum(DedupStrategy.class, firstReceivedMessage.getDedupStrategy(), DedupStrategy.NO_DEDUP);
-        long dedupPeriodMinutes = firstReceivedMessage.getDedupPeriodMinutes();
-        DedupParameters dedupParameters = DedupParameters.builder()
-                .dedupStrategy(dedupStrategy)
-                .dedupPeriodMinutes(dedupPeriodMinutes)
-                .build();
-
-        List<MessageSendRequest> bufferedRequests = bufferedMessages.stream().map(redisBuffer -> new MessageSendRequest(
-                dedupParameters, redisBuffer.getTitle(),
-                MessageBody.builder().templateId(redisBuffer.getTemplateId()).parameters(redisBuffer.getMessageParameter()).build(),
-                Recipient.builder()
-                        .recipientId(redisBuffer.getRecipientId())
-                        .recipientType(EnumUtils.getEnum(RecipientType.class, firstReceivedMessage.getRecipientType())).build()
-        )).collect(Collectors.toList());
-
-        return new BufferedMessages(
-                dedupParameters.getDedupStrategy(),
-                dedupParameters.getDedupPeriodMinutes(),
-                firstReceivedTime,
-                bufferedRequests, messageKey
-        );
     }
 
     protected String toRedisKey(String messageKey) {

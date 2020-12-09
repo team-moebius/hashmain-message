@@ -15,5 +15,5 @@ spring:
         password: VVbRzWYK4OHE
       enabled: true
 redis:
-  master-server: 172.31.30.232
+  master-server: redis-internal.hashmainpro.com
   master-port: 6379
