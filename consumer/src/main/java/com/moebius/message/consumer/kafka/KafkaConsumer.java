@@ -12,33 +12,34 @@ import java.util.Map;
 
 @Slf4j
 public abstract class KafkaConsumer<K, V> {
-	private final KafkaReceiver<K, V> receiver;
+    private final KafkaReceiver<K, V> receiver;
 
-	public KafkaConsumer(ReceiverOptions<?, ?> baseReceiverOptions) {
-		Map<String, Object> consumerProperties = baseReceiverOptions.consumerProperties();
-		consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, getKeyDeserializerClass());
-		consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerClass());
+    public KafkaConsumer(ReceiverOptions<?, ?> baseReceiverOptions) {
+        Map<String, Object> consumerProperties = baseReceiverOptions.consumerProperties();
+        consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, getKeyDeserializerClass());
+        consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerClass());
 
-		ReceiverOptions<K, V> receiverOptions = ReceiverOptions.create(consumerProperties);
-		receiverOptions.subscription(Collections.singleton(getTopic()))
-			.addAssignListener(partitions -> log.debug("[Kafka] onPartitionsAssigned {}", partitions))
-			.addRevokeListener(partitions -> log.debug("[Kafka] onPartitionsRevoked {}", partitions));
+        ReceiverOptions<K, V> receiverOptions = ReceiverOptions.create(consumerProperties);
+        receiverOptions.subscription(Collections.singleton(getTopic()))
+                .addAssignListener(partitions -> log.debug("[Kafka] onPartitionsAssigned {}", partitions))
+                .addRevokeListener(partitions -> log.debug("[Kafka] onPartitionsRevoked {}", partitions));
 
-		receiver = KafkaReceiver.create(receiverOptions);
-	}
+        receiver = KafkaReceiver.create(receiverOptions);
+    }
 
-	public abstract String getTopic();
+    public abstract String getTopic();
 
-	public abstract void processRecord(ReceiverRecord<K, V> record);
+    public abstract void processRecord(ReceiverRecord<K, V> record);
 
-	protected abstract Class<?> getKeyDeserializerClass();
+    protected abstract Class<?> getKeyDeserializerClass();
 
-	protected abstract Class<?> getValueDeserializerClass();
+    protected abstract Class<?> getValueDeserializerClass();
 
-	public void consumeMessages() {
-		log.info("[Kafka] Start to read messages. [{}]", getTopic());
-		receiver.receive()
-			.publishOn(Schedulers.elastic())
-			.subscribe(this::processRecord);
-	}
+    public void consumeMessages() {
+        log.info("[Kafka] Start to read messages. [{}]", getTopic());
+        receiver.receive()
+                .publishOn(Schedulers.elastic())
+                .doOnTerminate(this::consumeMessages)
+                .subscribe(this::processRecord);
+    }
 }
